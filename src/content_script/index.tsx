@@ -115,7 +115,7 @@ async function showPopupCard(x: number, y: number, text: string) {
                     <PopupCard text={text} engine={engine} />
                 </JSS>
             </div>
-        </React.StrictMode>,
+        </React.StrictMode>
     )
 }
 
@@ -169,9 +169,16 @@ async function showPopupThumb(text: string, x: number, y: number) {
 
 document.addEventListener('mouseup', (event: MouseEvent) => {
     window.setTimeout(async () => {
-        const text = (window.getSelection()?.toString() ?? '').trim();
-        (await utils.getSettings()).autoTranslate === true
-            ? showPopupCard(event.pageX + 7, event.pageY + 7, text) : showPopupThumb(text, event.pageX + 7, event.pageY + 7)
+        let text = (window.getSelection()?.toString() ?? '').trim()
+        if (!text) {
+            if (event.target instanceof HTMLInputElement || event.target instanceof HTMLTextAreaElement) {
+                const elem = event.target
+                text = elem.value.substring(elem.selectionStart ?? 0, elem.selectionEnd ?? 0)
+            }
+        }
+        ;(await utils.getSettings()).autoTranslate === true
+            ? showPopupCard(event.pageX + 7, event.pageY + 7, text)
+            : showPopupThumb(text, event.pageX + 7, event.pageY + 7)
     })
 })
 

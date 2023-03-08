@@ -4,6 +4,7 @@
 import XRegExp from 'xregexp'
 import LanguageDetect from 'languagedetect'
 import GuessLanguage from 'guesslanguage-ng'
+import { isTraditional } from '../common/traditional-or-simplified'
 
 const langDetector = new LanguageDetect()
 langDetector.setLanguageType('iso2')
@@ -13,9 +14,9 @@ const langGuesser = GuessLanguage()
 export const supportLanguages: [string, string][] = [
     // ['auto', 'auto'],
     ['en', 'English'],
-    ['zh', '中文'],
-    // ['zh-Hans', '简体中文'],
-    // ['zh-Hant', '繁體中文'],
+    // ['zh', '中文'],
+    ['zh-Hans', '简体中文'],
+    ['zh-Hant', '繁體中文'],
     ['yue', '粤语'],
     ['wyw', '古文'],
     ['ja', '日本語'],
@@ -69,12 +70,11 @@ export const supportLanguages: [string, string][] = [
     ['jw', 'Jawa'],
     ['ka', 'ქართული'],
     ['kk', 'Қазақ'],
+    ['vi', 'Vietnamese'],
 ]
 
 export const langMap: Map<string, string> = new Map(supportLanguages)
-export const langMapReverse = new Map(
-    supportLanguages.map(([standardLang, lang]) => [lang, standardLang]),
-)
+export const langMapReverse = new Map(supportLanguages.map(([standardLang, lang]) => [lang, standardLang]))
 
 function detect(text: string) {
     const scores: Record<string, number> = {}
@@ -111,6 +111,14 @@ function detect(text: string) {
 }
 
 export async function detectLang(text: string): Promise<string | null> {
+    const lang = await _detectLang(text)
+    if (lang === 'zh' || lang === 'zh-CN' || lang === 'zh-TW') {
+        return isTraditional(text) ? 'zh-Hant' : 'zh-Hans'
+    }
+    return lang
+}
+
+export async function _detectLang(text: string): Promise<string | null> {
     const lang = await langGuesser.detect(text)
     if (lang !== 'unknown') {
         if (lang !== 'en' && lang !== 'zh' && lang !== 'zh-TW') {
@@ -147,7 +155,5 @@ export async function detectLang(text: string): Promise<string | null> {
     // pick lang with highest count
     // if count is the same, pick the first lang
     // if no lang is detected, return null
-    return (
-        Object.keys(langCount).reduce((a, b) => (langCount[a] > langCount[b] ? a : b), 'en') || null
-    )
+    return Object.keys(langCount).reduce((a, b) => (langCount[a] > langCount[b] ? a : b), 'en') || null
 }

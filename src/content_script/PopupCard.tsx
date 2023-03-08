@@ -35,8 +35,8 @@ const langOptions: Value = supportLanguages.reduce((acc, [id, label]) => {
 }, [] as Value)
 
 const useStyles = createUseStyles({
-    popupCard: {},
-    popupCardHeaderContainer: {
+    'popupCard': {},
+    'popupCardHeaderContainer': {
         display: 'flex',
         flexDirection: 'row',
         cursor: 'move',
@@ -44,34 +44,34 @@ const useStyles = createUseStyles({
         padding: '5px 10px',
         borderBottom: '1px solid #e8e8e8',
     },
-    iconContainer: {
+    'iconContainer': {
         display: 'flex',
         alignItems: 'center',
         gap: '8px',
         flexShrink: 0,
         marginRight: 'auto',
     },
-    icon: {
+    'icon': {
         display: 'block',
         width: '16px',
         height: '16px',
     },
-    iconText: {
+    'iconText': {
         fontSize: '12px',
         color: '#333',
         fontWeight: 500,
     },
-    paragraph: {
+    'paragraph': {
         margin: '14px 0',
     },
-    popupCardHeaderButtonGroup: {
+    'popupCardHeaderButtonGroup': {
         display: 'flex',
         flexDirection: 'row',
         alignItems: 'center',
         gap: '5px',
         marginLeft: '10px',
     },
-    popupCardHeaderActionsContainer: {
+    'popupCardHeaderActionsContainer': {
         display: 'flex',
         flexShrink: 0,
         flexDirection: 'row',
@@ -80,46 +80,46 @@ const useStyles = createUseStyles({
         padding: '5px 10px',
         gap: '10px',
     },
-    from: {
+    'from': {
         display: 'flex',
         color: '#999',
         fontSize: '12px',
         flexShrink: 0,
     },
-    arrow: {
+    'arrow': {
         display: 'flex',
         color: '#999',
         cursor: 'pointer',
     },
-    to: {
+    'to': {
         display: 'flex',
         color: '#999',
         fontSize: '12px',
         flexShrink: 0,
     },
-    popupCardContentContainer: {
+    'popupCardContentContainer': {
         display: 'flex',
         flexDirection: 'column',
     },
-    loadingContainer: {
+    'loadingContainer': {
         margin: '0 auto',
         display: 'flex',
         flexDirection: 'row',
         alignItems: 'center',
         gap: '10px',
     },
-    popupCardEditorContainer: {
+    'popupCardEditorContainer': {
         display: 'flex',
         flexDirection: 'column',
         padding: '10px',
         borderBottom: '1px solid #e9e9e9',
     },
-    popupCardTranslatedContainer: {
+    'popupCardTranslatedContainer': {
         position: 'relative',
         display: 'flex',
         padding: '16px 10px 10px 10px',
     },
-    actionStr: {
+    'actionStr': {
         position: 'absolute',
         display: 'flex',
         flexDirection: 'row',
@@ -133,10 +133,10 @@ const useStyles = createUseStyles({
         padding: '2px 12px',
         background: '#eee',
     },
-    error: {
+    'error': {
         background: '#f8d7da',
     },
-    caret: {
+    'caret': {
         marginLeft: '4px',
         borderRight: '0.2em solid #777',
         animation: '$caret 500ms steps(44) infinite',
@@ -146,27 +146,27 @@ const useStyles = createUseStyles({
             borderColor: 'transparent',
         },
     },
-    popupCardTranslatedContentContainer: {
+    'popupCardTranslatedContentContainer': {
         marginTop: '-14px',
         padding: '4px 8px',
     },
-    errorMessage: {
+    'errorMessage': {
         display: 'flex',
         color: 'red',
     },
-    actionButtonsContainer: {
+    'actionButtonsContainer': {
         display: 'flex',
         flexDirection: 'row',
         alignItems: 'center',
         gap: '12px',
         marginTop: '10px',
     },
-    actionButton: {
+    'actionButton': {
         cursor: 'pointer',
     },
-    writing: {
-        marginLeft: '3px',
-        width: '10px',
+    'writing': {
+        'marginLeft': '3px',
+        'width': '10px',
         '&::after': {
             content: '"✍️"',
             animation: '$writing 1.3s infinite',
@@ -188,7 +188,7 @@ export interface IPopupCardProps {
 export function PopupCard(props: IPopupCardProps) {
     const [translateMode, setTranslateMode] = useState<TranslateMode | ''>('')
     useEffect(() => {
-        ; (async () => {
+        ;(async () => {
             const settings = await getSettings()
             if (settings.defaultTranslateMode !== 'nop') {
                 setTranslateMode(settings.defaultTranslateMode)
@@ -220,10 +220,11 @@ export function PopupCard(props: IPopupCardProps) {
     const [detectFrom, setDetectFrom] = useState('')
     const [detectTo, setDetectTo] = useState('')
     useEffect(() => {
-        ; (async () => {
+        ;(async () => {
             const from = (await detectLang(props.text)) ?? 'en'
+            const settings = await getSettings()
             setDetectFrom(from)
-            setDetectTo(from === 'zh' ? 'en' : 'zh')
+            setDetectTo(from === 'zh-Hans' || from === 'zh-Hant' ? 'en' : settings.defaultTargetLanguage)
         })()
     }, [props.text])
 
@@ -330,7 +331,10 @@ export function PopupCard(props: IPopupCardProps) {
                             }
                         }
                         setTranslatedText((translatedText) => {
-                            if (translatedText.endsWith('"') || translatedText.endsWith('」')) {
+                            if (
+                                translatedText &&
+                                ['”', '"', '」'].indexOf(translatedText[translatedText.length - 1]) >= 0
+                            ) {
                                 return translatedText.slice(0, -1)
                             }
                             return translatedText
@@ -357,7 +361,7 @@ export function PopupCard(props: IPopupCardProps) {
                 }
             }
         },
-        [translateMode, detectFrom, detectTo],
+        [translateMode, detectFrom, detectTo]
     )
 
     useEffect(() => {
@@ -500,7 +504,7 @@ export function PopupCard(props: IPopupCardProps) {
                                         }}
                                         value={editableText}
                                         size='mini'
-                                        resize='both'
+                                        resize='vertical'
                                         onChange={(e) => setEditableText(e.target.value)}
                                         onKeyDown={(e) => {
                                             if (e.key === 'Enter') {
