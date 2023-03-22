@@ -1,14 +1,25 @@
 {
     "compilerOptions": {
         "strict": true,
+        "lib": ["DOM", "DOM.Iterable", "es2015"],
+        "allowJs": false,
+        "useDefineForClassFields": true,
         "module": "commonjs",
-        "target": "es2018",
+        "target": "es2015",
+        "skipLibCheck": true,
         "esModuleInterop": true,
+        "forceConsistentCasingInFileNames": true,
         "sourceMap": false,
-        "rootDir": "src",
+        "rootDir": ".",
         "outDir": "dist/js",
+        "moduleResolution": "node",
+        "noEmit": true,
         "noEmitOnError": true,
-        "jsx": "react",
-        "typeRoots": [ "node_modules/@types" ]
-    }
+        "jsx": "react-jsx",
+        "typeRoots": [
+            "node_modules/@types"
+        ],
+        "resolveJsonModule": true
+    },
+    "include": ["src", "src-tauri"]
 }
